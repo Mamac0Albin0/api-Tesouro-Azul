@@ -1,0 +1,31 @@
+﻿coisas interessantes :
+Custom Validation Attribute
+
+coisas para ver :
+
+- usuarioController
+
+-- Criar logica melhor para admin
+
+- Pesquisar como criar uma rotina !!!
+
+
+-- Preciso melhorar o update do usuario : acresentar novos campos e apresentar ideia de implementação de imagem
+--- Melhorar o tratamento de erro nos dados recebidos
+-- Adicionar logica de criptografia de senha
+-- Adicionar campo para alterar assinatura
+-- Adicionar end-point que busca somente imagem
+--- Remover todos os end-points que possua imagem para buscar sem ela (fica muito pesado do jeito que está)
+
+- Controller de produto
+-- Adicionar Logica de imagem
+-- Adicionar end-points especificos para vencimento 
+
+- Controller e Model de Fornecedor
+-- Atualizar o campo ID_USUARIO
+
+
+Preciso adicionar uma logica de busca por codigo de barras do produtos, da mesma forma que preciso criar um campo que indica que o produto foi vendido em TB_PEDIDO_COMPRA para
+aderir à validade dele
+
+https://centraldocliente.locaweb.com.br/dynamics_tickets/new_treatment

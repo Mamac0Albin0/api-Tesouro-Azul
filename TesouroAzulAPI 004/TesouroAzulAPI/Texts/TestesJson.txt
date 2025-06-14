@@ -1,0 +1,74 @@
+Modelo JSON de teste :
+
+Modelo para o controller de Usuario
+
+{
+  "nomE_USUARIO": "Miguel Fonsêca Souza",
+  "emaiL_USUARIO": "MeuEmail@gmail.com",
+  "datA_NASC_USUARIO": "2025-05-06T19:32:34.717Z",
+  "cpF_USUARIO": "00011122233",
+  "cnpJ_USUARIO": "",
+  "iD_ASSINATURA_FK": 2,
+  "fotO_USUARIO": "",
+  "senhA_USUARIO": "01234567",
+  "statuS_USUARIO": "a"
+}
+
+Modelo para o controller de Fornecedor
+
+{
+  "iD_FORNECEDOR": 1,
+  "nomE_FORNECEDOR": "Victor",
+  "cnpJ_FORNECEDOR": "123",
+  "emaiL_FORNECEDOR": "user@example.com",
+  "teL_FORNECEDOR": "012345678",
+  "ceL_FORNECEDOR": "1",
+  "enderecO_FORNECEDOR": "Rua batata recheada"
+}
+
+Modelo para o controller de produto
+
+{
+  "iD_USUARIO": 1,
+  "coD_PRODUTO": "123",
+  "nomE_PRODUTO": "Carlos",
+  "valoR_PRODUTO": 500,
+  "tipO_PRODUTO": "Toy",
+  "imG_PRODUTO": ""
+}
+
+{
+  "iD_USUARIO": 2,
+  "coD_PRODUTO": "223",
+  "nomE_PRODUTO": "Victor",
+  "valoR_PRODUTO": 550.99,
+  "tipO_PRODUTO": "Toy",
+  "imG_PRODUTO": ""
+}
+
+Modelo para o controller de produto
+
+{
+  "pedido": {
+    "valoR_PEDIDO_VENDA": 0
+  },
+  "item": [
+    {
+      "iD_PRODUTO_FK": 1,
+      "lotE_VENDA": "123",
+      "qtS_ITEM_VENDA": 1,
+      "n_ITEM_VENDA": 1,
+      "descontO_ITEM_VENDA": 0,
+      "valoR_TOTAL_ITEM_VENDA": 500
+    },
+    {
+      "iD_PRODUTO_FK": 1,
+      "lotE_VENDA": "123",
+      "qtS_ITEM_VENDA": 1,
+      "n_ITEM_VENDA": 1,
+      "descontO_ITEM_VENDA": 0,
+      "valoR_TOTAL_ITEM_VENDA": 500
+    }
+  ]
+}
+
