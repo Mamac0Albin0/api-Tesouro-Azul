@@ -107,4 +107,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http://0.0.0.0:5232"); // Ao realizar o teste em localhost remover este caminho 
+app.Run("31.97.167.78"); // Ao realizar o teste em localhost remover este caminho 
