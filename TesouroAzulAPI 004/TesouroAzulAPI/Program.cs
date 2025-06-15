@@ -101,4 +101,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Executa na porta local 5000, proxy (Apache/Nginx) fará o encaminhamento do IP público + HTTPS para aqui
-app.Run("http://localhost:5000");
+app.Run();
