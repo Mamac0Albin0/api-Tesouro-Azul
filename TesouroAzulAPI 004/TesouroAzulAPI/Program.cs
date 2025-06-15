@@ -22,7 +22,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 36)) // Ajuste conforme a versão do MySQL
+    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    // quando estiver estavel e não utilizar mais modelos de desenvolvimento, remover o autodetect -> new MySqlServerVersion(new Version(8, 0, 42)) // Ajuste conforme a versão do MySQL
     ));
 
 builder.Services.AddEndpointsApiExplorer();
