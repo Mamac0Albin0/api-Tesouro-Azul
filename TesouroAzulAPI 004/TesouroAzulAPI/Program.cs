@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Services;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,24 +78,19 @@ builder.Services.AddAuthentication("Bearer")
 
 var app = builder.Build();
 
-// Habilita CORS antes de mapear os endpoints
-app.UseCors();
-
-/*
-// modelo de configuração do Swagger para desenvolvimento
-if (app.Environment.IsDevelopment())
+// Adiciona o middleware para reconhecer proxy reverso e HTTPS
+app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-// termina aqui
-*/
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TesouroAzulAPI v1");
-    c.RoutePrefix = "swagger"; // ou "" se quiser que apareça na raiz "/"
+    c.RoutePrefix = "swagger"; // ou "" se quiser na raiz
 });
 
 app.UseHttpsRedirection();
@@ -103,8 +98,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
-app.Run("31.97.167.78"); // Ao realizar o teste em localhost remover este caminho 
+// Executa na porta local 5000, proxy (Apache/Nginx) fará o encaminhamento do IP público + HTTPS para aqui
+app.Run("http://localhost:5000");
