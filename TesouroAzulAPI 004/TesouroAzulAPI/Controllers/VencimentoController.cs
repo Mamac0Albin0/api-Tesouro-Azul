@@ -118,5 +118,23 @@ namespace TesouroAzulAPI.Controllers
             if (ItensVencidosAnoUsuario == null || !ItensVencidosAnoUsuario.Any()) return NotFound("Nenhum item vencido encontrado no ano atual para o usuário.");
             return Ok(ItensVencidosAnoUsuario);
         }
+
+        // Buscar itens faltando 10 dias de vencimento
+        [Authorize(Roles = "user")]
+        [HttpGet("buscar-itens-faltando-10-dias-vencimento")]
+        public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarItensFaltando10DiasVencimento()
+        {
+            int IdUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            // Pela tabela ItensCompra não possuir o ID_USUARIO_FK, é necessário buscar os itens do usuario através do PedidoCompra  
+            var ItensFaltando10Dias = await _context.ItensCompra
+                .Where(i => i.VAL_ITEM_COMPRA.HasValue &&
+                            i.VAL_ITEM_COMPRA.Value > DateTime.Now &&
+                            i.VAL_ITEM_COMPRA.Value <= DateTime.Now.AddDays(10) &&
+                            i.ESTADO_ITEM_COMPRA != "vendido" &&
+                            _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .ToListAsync();
+            if (ItensFaltando10Dias == null || !ItensFaltando10Dias.Any()) return NotFound("Nenhum item faltando 10 dias de vencimento encontrado para o usuário atual.");
+            return Ok(ItensFaltando10Dias);
+        }
     }
 }

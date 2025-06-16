@@ -7,13 +7,12 @@
     }
     public class ItensLucroDto
     {
-
+        public int ID_ITEM { get; set; } // ID do item de lucro
 
     }
 
     public class LucroCompletoDto
     {
-        public CriarLucroDto Lucro { get; set; }
         public List<ItensLucroDto> Itens { get; set; }
     }
 }
