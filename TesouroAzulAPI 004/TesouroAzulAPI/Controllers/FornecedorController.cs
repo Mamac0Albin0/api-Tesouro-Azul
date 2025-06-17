@@ -69,7 +69,7 @@ namespace TesouroAzulAPI.Controllers
         }
         //GETs
         //Buscar Fornecedores
-        [Authorize(Roles = "user,admin")] // Alterar para admin depois
+        [Authorize(Roles = "admin")] 
         [HttpGet("buscar-fornecedores")]
         public async Task<ActionResult<IEnumerable<Fornecedor>>> BuscarFornecedores()
         {
@@ -78,9 +78,12 @@ namespace TesouroAzulAPI.Controllers
 
         //Burcar Forncecedor por ID
         [Authorize(Roles = "user")]
-        [HttpGet("buscar-fornecedor-por-{id}")]
-        public async Task<ActionResult<Fornecedor>> BuscarFornecedorPorId(int id)
+        [HttpGet("buscar-fornecedor")]
+        public async Task<ActionResult<Fornecedor>> BuscarFornecedorPorId()
         {
+            // Buscar o ID do usuário logado
+            int id = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var fornecedor = await _context.Fornecedores.FindAsync(id);
             if (fornecedor == null) return NotFound(new { mensagem = "Fornecedor não encontrado." });
             return fornecedor;
@@ -89,9 +92,12 @@ namespace TesouroAzulAPI.Controllers
         //PACHTs
         //Alterar Fornecedor
         [Authorize(Roles = "user,admin")]
-        [HttpPatch("alterar-fornecedor-por-campo-{id}")]
-        public async Task<IActionResult> AlterarFornecedor(int id, [FromBody] AtualizarCampoFornecedorDto dto)
+        [HttpPatch("alterar-fornecedor-por-campo")]
+        public async Task<IActionResult> AlterarFornecedor([FromBody] AtualizarCampoFornecedorDto dto)
         {
+            // Buscar o ID do usuário logado
+            int id = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var fornecedor = await _context.Fornecedores.FindAsync(id);
             if (fornecedor == null) return NotFound(new { mensagem = "Fornecedor não encontrado." });
 
@@ -136,10 +142,10 @@ namespace TesouroAzulAPI.Controllers
         //DELETEs
         //Deletar Fornecedor
         [Authorize(Roles = "user,admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletarFornecedor(int id)
+        [HttpDelete("{id_fornecedor}")]
+        public async Task<IActionResult> DeletarFornecedor(int id_fornecedor)
         {
-            var fornecedor = await _context.Fornecedores.FindAsync(id);
+            var fornecedor = await _context.Fornecedores.FindAsync(id_fornecedor);
             if (fornecedor == null) return NotFound(new { mensagem = "Fornecedor não encontrado." });
 
             _context.Fornecedores.Remove(fornecedor);
