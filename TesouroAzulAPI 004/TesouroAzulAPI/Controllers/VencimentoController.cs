@@ -51,20 +51,24 @@ namespace TesouroAzulAPI.Controllers
             return Ok(ItensVencidosMes);
         }
 
-        // Buscar vencimentos de itens do usuario 
+        // Buscar vencimentos de itens do usuario diferenciando por VAL_ITEM_COMPRA  
         [Authorize(Roles = "user")]
         [HttpGet("buscar-itens-vencidos-usuario")]
-        public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarVencidosUsuario()
+        public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarVencidosUsuarioDiferenciado()
         {
             int IdUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            // Pela tabela ItensCompra não possuir o ID_USUARIO_FK, é necessário buscar os itens do usuario através do PedidoCompra
+            // Pela tabela ItensCompra não possuir o ID_USUARIO_FK, é necessário buscar os itens do usuario através do PedidoCompra  
             var ItensVencidosUsuario = await _context.ItensCompra
                 .Where(i => i.VAL_ITEM_COMPRA < DateTime.Now && i.ESTADO_ITEM_COMPRA != "vendido" &&
                             _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .GroupBy(i => new { i.ID_PRODUTO_FK, i.VAL_ITEM_COMPRA })
+                .Select(g => g.FirstOrDefault())
                 .ToListAsync();
 
-            if (ItensVencidosUsuario == null || !ItensVencidosUsuario.Any()) return NotFound("Nenhum item vencido encontrado para o usuário atual.");
+            if (ItensVencidosUsuario == null || !ItensVencidosUsuario.Any())
+                return NotFound("Nenhum item vencido encontrado para o usuário atual.");
+
             return Ok(ItensVencidosUsuario);
         }
 
@@ -78,7 +82,10 @@ namespace TesouroAzulAPI.Controllers
             var ItensVencidosUsuario = await _context.ItensCompra
                 .Where(i => i.VAL_ITEM_COMPRA < DateTime.Now && i.ESTADO_ITEM_COMPRA != "vendido" &&
                             i.ID_PRODUTO_FK == id_produto &&
+                            !string.IsNullOrEmpty(i.LOTE_COMPRA) &&
                             _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .GroupBy(i => new { i.ID_PRODUTO_FK, i.LOTE_COMPRA })
+                .Select(g => g.FirstOrDefault())
                 .ToListAsync();
             if (ItensVencidosUsuario == null || !ItensVencidosUsuario.Any()) return NotFound("Nenhum item vencido encontrado para o usuário atual.");
             return Ok(ItensVencidosUsuario);
@@ -96,7 +103,10 @@ namespace TesouroAzulAPI.Controllers
                             i.VAL_ITEM_COMPRA.Value < DateTime.Now &&
                             i.ESTADO_ITEM_COMPRA != "vendido" &&
                             i.VAL_ITEM_COMPRA.Value.Month == DateTime.Now.Month &&
+                            !string.IsNullOrEmpty(i.LOTE_COMPRA) &&
                             _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .GroupBy(i => new { i.ID_PRODUTO_FK, i.LOTE_COMPRA })
+                .Select(g => g.FirstOrDefault())
                 .ToListAsync();
             if (ItensVencidosMesUsuario == null || !ItensVencidosMesUsuario.Any()) return NotFound("Nenhum item vencido encontrado no mês atual para o usuário.");
             return Ok(ItensVencidosMesUsuario);
@@ -113,7 +123,10 @@ namespace TesouroAzulAPI.Controllers
                             i.VAL_ITEM_COMPRA.Value < DateTime.Now &&
                             i.ESTADO_ITEM_COMPRA != "vendido" &&
                             i.VAL_ITEM_COMPRA.Value.Year == DateTime.Now.Year &&
+                            !string.IsNullOrEmpty(i.LOTE_COMPRA) &&
                             _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .GroupBy(i => new { i.ID_PRODUTO_FK, i.LOTE_COMPRA })
+                .Select(g => g.FirstOrDefault())
                 .ToListAsync();
             if (ItensVencidosAnoUsuario == null || !ItensVencidosAnoUsuario.Any()) return NotFound("Nenhum item vencido encontrado no ano atual para o usuário.");
             return Ok(ItensVencidosAnoUsuario);
@@ -131,7 +144,10 @@ namespace TesouroAzulAPI.Controllers
                             i.VAL_ITEM_COMPRA.Value > DateTime.Now &&
                             i.VAL_ITEM_COMPRA.Value <= DateTime.Now.AddDays(10) &&
                             i.ESTADO_ITEM_COMPRA != "vendido" &&
+                            !string.IsNullOrEmpty(i.LOTE_COMPRA) &&
                             _context.PedidosCompra.Any(p => p.ID_USUARIO_FK == IdUsuario && p.ID_PEDIDO == i.ID_PEDIDO_FK))
+                .GroupBy(i => new { i.ID_PRODUTO_FK, i.LOTE_COMPRA })
+                .Select(g => g.FirstOrDefault())
                 .ToListAsync();
             if (ItensFaltando10Dias == null || !ItensFaltando10Dias.Any()) return NotFound("Nenhum item faltando 10 dias de vencimento encontrado para o usuário atual.");
             return Ok(ItensFaltando10Dias);
