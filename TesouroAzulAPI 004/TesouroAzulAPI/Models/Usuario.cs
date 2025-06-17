@@ -24,10 +24,10 @@ namespace TesouroAzulAPI.Models
         public DateTime DATA_NASC_USUARIO { get; set; }
 
         [StringLength(11)]
-        public string CPF_USUARIO {  get; set; }
+        public string? CPF_USUARIO {  get; set; }
 
         [StringLength(14)]
-        public string CNPJ_USUARIO { get; set; }
+        public string? CNPJ_USUARIO { get; set; }
 
         [Required]
         public int ID_ASSINATURA_FK { get; set; } = 0; // 1 para não assinante; 2 para assinante

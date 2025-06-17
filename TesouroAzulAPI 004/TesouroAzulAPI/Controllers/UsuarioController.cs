@@ -87,7 +87,7 @@ namespace TesouroAzulAPI.Controllers
         // GETs
         // Endpoint para Admin
         // Buscar Usuarios
-        [Authorize(Roles = "user,admin")] // remover user no futuro
+        [Authorize(Roles = "admin")] // remover user no futuro
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> BuscarUsuarios() 
         {
@@ -139,7 +139,7 @@ namespace TesouroAzulAPI.Controllers
 
             if (string.IsNullOrEmpty(dto.Campo) || string.IsNullOrEmpty(dto.NovoValor))
             {
-                return BadRequest("Campo ou Novo Valor não podem ser nulos ou vazios.É permitido os seguintes campos : 'nome', 'email', 'cpf', 'cnpj', 'senha', 'data', 'status', 'statusAssinatura'");
+                return BadRequest("Campo ou Novo Valor não podem ser nulos ou vazios.É permitido os seguintes campos : 'nome', 'email', 'cpf', 'cnpj', 'senha', 'data'");
             }
 
             switch (dto.Campo)
@@ -169,29 +169,8 @@ namespace TesouroAzulAPI.Controllers
                         return BadRequest("Novo Valor para Data deve ser uma data válida.");
                     }
                     break;
-                case "status":
-                    if (dto.NovoValor == "a")
-                    {
-                        usuario.STATUS_USUARIO = "a";
-                    }
-                    else if (dto.NovoValor == "d")
-                    {
-                        usuario.STATUS_USUARIO = "d";
-                    }
-                    break;
-                case "statusAssinatura":
-                    if (dto.NovoValor == "2") usuario.ID_ASSINATURA_FK = 2;
-
-                    else if (dto.NovoValor == "1") usuario.ID_ASSINATURA_FK = 1;
-
-                    else
-                    {
-                        return BadRequest("Novo Valor para Status Assinatura deve ser : '1' para sem assinatura; '2' para assinante;");
-                    }
-                    break;
-
                 default:
-                    return BadRequest("Campo inválido. É permitido os seguintes campos : 'nome', 'email', 'cpf', 'cnpj', 'senha', 'data', 'status', 'statusAssinatura'");
+                    return BadRequest("Campo inválido. É permitido os seguintes campos : 'nome', 'email', 'cpf', 'cnpj', 'senha', 'data'");
             }
 
             _context.Usuarios.Update(usuario);
@@ -215,8 +194,50 @@ namespace TesouroAzulAPI.Controllers
             return Ok(new { mensagem = "Usuario desativado com sucesso.", usuario });
         }
 
-        // Atualizar Imagem
+        // Reativar Usuario
+        [Authorize(Roles = "user")]
+        [HttpPatch("/reativar-usuario")]
+        public async Task<IActionResult> ReativarUsuario()
+        {
+            // Busca pelo id
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+            if (usuario == null) return NotFound("Usuario não encontrado.");
+            // Verifica se o usuario já está ativo
+            if (usuario.STATUS_USUARIO == "a") return BadRequest("Usuario já está ativo.");
+            usuario.STATUS_USUARIO = "a"; // Define o status como ativo
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensagem = "Usuario reativado com sucesso.", usuario });
+        }
+
+        // Ativar assinatura
         [Authorize(Roles = "user,admin")]
+        [HttpPatch("/ativar-assinatura")]
+        public async Task<IActionResult> AtivarAssinatura()
+        {
+            var usuario = await _context.Usuarios.FindAsync(Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+            if (usuario == null) return NotFound("Usuario não encontrado.");
+
+            // Verifica se o usuario já é assinante
+            if (usuario.ID_ASSINATURA_FK == 2) return BadRequest("Usuario já é assinante.");
+
+            usuario.ID_ASSINATURA_FK = 2; // Define o status como assinante
+
+            // Atualiza a data validade com duração de 6 meses após o pagamento
+            DateTime dataValidade = DateTime.Now.AddMonths(6);
+
+            usuario.DATA_INICIO_ASSINATURA_USUARIO = DateTime.Now;
+            usuario.DATA_VALIDADE_ASSINATURA_USUARIO = dataValidade;
+
+
+            // Salva contexto
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+            return Ok(new { mensagem = "Assinatura ativada com sucesso.", usuario });
+        }
+
+            // Atualizar Imagem
+            [Authorize(Roles = "user,admin")]
         [HttpPatch("/alterar-imagem")]
         public async Task<IActionResult> AtualizarImagem([FromBody] ImagemDto dto)
         {
