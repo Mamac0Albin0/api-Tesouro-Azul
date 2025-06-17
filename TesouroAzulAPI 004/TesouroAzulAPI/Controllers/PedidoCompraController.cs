@@ -51,7 +51,9 @@ namespace TesouroAzulAPI.Controllers
 
             // Adicionar busca aqui para descobrir o ID do pedido criado e adicionar na variavel
             int idPedido = pedido.ID_PEDIDO;
-            
+            // Variavel de valor para adicionar no VALOR_PEDIDO
+            decimal valorPedido = 0;
+
             var itensSalvo = new List<ItensCompra>();
             if (itensSalvo == null || !dto.Item.Any()) return Ok(new { mensagem = "Compra criado sem produto" , pedido });
             foreach (var item in dto.Item)
@@ -60,16 +62,21 @@ namespace TesouroAzulAPI.Controllers
                 {
                     ID_PRODUTO_FK = item.ID_PRODUTO_FK,
                     ID_PEDIDO_FK = idPedido, // Usando o ID do pedido criado
-                    VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA ?? null,
+                    VAL_ITEM_COMPRA = item.VAL_ITEM_COMPRA.HasValue ? item.VAL_ITEM_COMPRA.Value : (DateTime?)null,
                     LOTE_COMPRA = item.LOTE_COMPRA,
                     QUANTIDADE_ITEM_COMPRA = item.QUANTIDADE_ITEM_COMPRA,
                     N_ITEM_COMPRA = item.N_ITEM_COMPRA,
                     VALOR_TOTAL_ITEM_COMPRA = item.VALOR_TOTAL_ITEM_COMPRA
                 };
 
+                valorPedido += item.VALOR_TOTAL_ITEM_COMPRA; // Acumulando o valor total dos itens
                 _context.ItensCompra.Add(itemCompra);
                 itensSalvo.Add(itemCompra);
             }
+
+            // Atualizando o valor do pedido com o total dos itens e salva
+            pedido.VALOR_PEDIDO = valorPedido;
+            _context.PedidosCompra.Update(pedido);
             await _context.SaveChangesAsync();
 
             // Retorno do JSON com o pedido e seus items
@@ -92,6 +99,7 @@ namespace TesouroAzulAPI.Controllers
         {
             if (dto == null || !dto.Any()) return BadRequest("Lista de itens não pode ser vazia");
             var itensSalvos = new List<ItensCompra>();
+            decimal valorTotal = 0;
             foreach (var item in dto)
             {
                 var itemCompra = new ItensCompra
@@ -106,8 +114,18 @@ namespace TesouroAzulAPI.Controllers
                 };
                 _context.ItensCompra.Add(itemCompra);
                 itensSalvos.Add(itemCompra);
+
+                // Atualiza o valor total do pedido
+                valorTotal += item.VALOR_TOTAL_ITEM_COMPRA;
+
             }
             await _context.SaveChangesAsync();
+            // Atualiza o valor do pedido com o total dos itens
+            var pedido = await _context.PedidosCompra.FindAsync(dto.First().ID_PEDIDO_FK);
+            pedido.VALOR_PEDIDO += valorTotal;
+            _context.PedidosCompra.Update(pedido);
+            await _context.SaveChangesAsync();
+
             return Ok(itensSalvos);
         }
 
@@ -215,7 +233,7 @@ namespace TesouroAzulAPI.Controllers
         }
         //GETs
         //Buscar Compras Pedido
-        [Authorize(Roles ="user,admin")] // remover user
+        [Authorize(Roles ="admin")]
         [HttpGet("buscar-todos-pedidos")]
         public async Task<ActionResult<IEnumerable<PedidosCompra>>> BuscarComprasPedido()
         {
@@ -261,6 +279,8 @@ namespace TesouroAzulAPI.Controllers
             switch (dto.Campo.ToLower())
             {
                 case "fornecedor_pedido":
+                    if (!int.TryParse(dto.NovoValor, out int fornecedorId)) return BadRequest("Novo Valor para Fornecedor deve ser um número válido.");
+                    if (!_context.Fornecedores.Any(f => f.ID_FORNECEDOR == fornecedorId)) return NotFound("Fornecedor não encontrado");
                     pedido.ID_FORNECEDOR_FK = Convert.ToInt16(dto.NovoValor);
                     break;
                 case "data_pedido":
@@ -334,6 +354,12 @@ namespace TesouroAzulAPI.Controllers
         {
             var id_item_compra = await _context.ItensCompra.FindAsync(id_item);
             if (id_item_compra == null) return NotFound("Item não encontrado");
+
+            // atualiza o valor do pedido
+            var pedido = await _context.PedidosCompra.FindAsync(id_item_compra.ID_PEDIDO_FK);
+            if (pedido == null) return NotFound("Pedido não encontrado");
+            pedido.VALOR_PEDIDO -= id_item_compra.VALOR_TOTAL_ITEM_COMPRA;
+            _context.PedidosCompra.Update(pedido);
 
             _context.ItensCompra.Remove(id_item_compra);
             await _context.SaveChangesAsync();
