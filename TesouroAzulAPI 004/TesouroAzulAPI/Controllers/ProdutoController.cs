@@ -45,7 +45,7 @@ namespace TesouroAzulAPI.Controllers
                 NOME_PRODUTO = produtoDto.NOME_PRODUTO,
                 VALOR_PRODUTO = produtoDto.VALOR_PRODUTO,
                 TIPO_PRODUTO = Convert.ToString(produtoDto.TIPO_PRODUTO),
-                IMG_PRODUTO = Convert.FromBase64String(produtoDto.IMG_PRODUTO) ?? null
+                IMG_PRODUTO =  String.IsNullOrEmpty(produtoDto.IMG_PRODUTO) ? null : Convert.FromBase64String(produtoDto.IMG_PRODUTO)
             };
 
             _context.Produtos.Add(produto);
@@ -55,7 +55,7 @@ namespace TesouroAzulAPI.Controllers
         }
 
         //Buscar Produto {campo}
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user")]
         [HttpPost("/buscar-produtos-por-campo")]
         public async Task<ActionResult<IEnumerable<Produto>>> BurcarPorCampo([FromBody] camposDtos filtro)
         {
@@ -68,17 +68,17 @@ namespace TesouroAzulAPI.Controllers
             switch (filtro.Campo)
             {
                 case "cod_produto":
-                    var produtoCod = await _context.Produtos.Where(p => p.COD_PRODUTO == filtro.NovoValor).ToListAsync();
+                    var produtoCod = await _context.Produtos.Where(p => p.COD_PRODUTO == filtro.NovoValor && p.ID_USUARIO_FK == id_usuario).ToListAsync();
                     if (!produtoCod.Any()) return NotFound("Código não encontrado");
                     return Ok(produtoCod);
                     break;
                 case "nome_produto":
-                    var produtoNome = await _context.Produtos.Where(p => p.NOME_PRODUTO == filtro.NovoValor).ToListAsync();
+                    var produtoNome = await _context.Produtos.Where(p => p.NOME_PRODUTO == filtro.NovoValor && p.ID_USUARIO_FK == id_usuario).ToListAsync();
                     if (!produtoNome.Any()) return NotFound("Nome não encontrado");
                     return Ok(produtoNome);
                     break;
                 case "tipo_produto":
-                    var produtoTipo = await _context.Produtos.Where(p => p.TIPO_PRODUTO == filtro.NovoValor).ToListAsync();
+                    var produtoTipo = await _context.Produtos.Where(p => p.TIPO_PRODUTO == filtro.NovoValor && p.ID_USUARIO_FK == id_usuario).ToListAsync();
                     if (!produtoTipo.Any()) return NotFound("Tipo não encontrado");
                     return Ok(produtoTipo);
                     break;
@@ -89,7 +89,6 @@ namespace TesouroAzulAPI.Controllers
 
         }
 
-        // criar um post especifico somente para validade
 
         // Buscar por nome similiar
         [Authorize(Roles = "user")]
@@ -112,7 +111,7 @@ namespace TesouroAzulAPI.Controllers
 
         //GETs
         //Buscar Produtos
-        [Authorize(Roles = "user,admin")] // Remover user no futuro
+        [Authorize(Roles = "admin")] 
         [HttpGet("/buscar-todos-protudos")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutos()
         {
@@ -120,7 +119,7 @@ namespace TesouroAzulAPI.Controllers
         }
 
         // Bucar Produtos {id_usuario}
-        [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user")]
         [HttpGet("buscar-todos-produtos-users")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoIdUsuario()
         {
@@ -135,7 +134,9 @@ namespace TesouroAzulAPI.Controllers
         [HttpGet("buscar-produto/{id}")]
         public async Task<ActionResult<IEnumerable<Produto>>> BuscarProdutoId(int id)
         {
-            var produto = await _context.Produtos.FindAsync(id);
+            // Instanciando id user
+            int id_usuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var produto = await _context.Produtos.Where(p => p.ID_PRODUTO == id && p.ID_USUARIO_FK == id_usuario).ToListAsync();
             if (produto == null) return NotFound("Produto não encontrado");
             return Ok(produto);
         }
@@ -148,8 +149,10 @@ namespace TesouroAzulAPI.Controllers
         {
             try
             {
+                // Instanciando user id
+                int id_usuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 // tratamento de erro
-                var produto = await _context.Produtos.FindAsync(id);
+                var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.ID_PRODUTO == id && p.ID_USUARIO_FK == id_usuario);
                 if (produto == null) return NotFound("Produto não encontrado");
 
                 switch (campo.Campo)
@@ -183,7 +186,7 @@ namespace TesouroAzulAPI.Controllers
         }
 
         //Alterar Imagem
-        [Authorize(Roles ="user,admin")]
+        [Authorize(Roles ="user")]
         [HttpPatch("Alterar-Imagem-por-{id}")]
         public async Task<ActionResult<Produto>> AlterarImagem(int id, ImagemDto dto)
         {
