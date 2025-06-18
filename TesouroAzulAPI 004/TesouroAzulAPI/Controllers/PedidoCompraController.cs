@@ -76,7 +76,11 @@ namespace TesouroAzulAPI.Controllers
 
             // Atualizando o valor do pedido com o total dos itens e salva
             pedido.VALOR_PEDIDO = valorPedido;
-            _context.PedidosCompra.Update(pedido);
+
+            // verifica se o VALOR_PEDIDO é nulo ou zero
+            if (pedido.VALOR_PEDIDO == 0) _context.PedidosCompra.Update(pedido);
+
+            
             await _context.SaveChangesAsync();
 
             // Retorno do JSON com o pedido e seus items
