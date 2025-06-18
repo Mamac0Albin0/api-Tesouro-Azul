@@ -4,15 +4,16 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TesouroAzulAPI.Data;
 using TesouroAzulAPI.Services;
+using TesouroAzulAPI.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona o serviço de CORS
+// Adiciona o serviço de CORS  
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://tesouroazul.com.br")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -21,17 +22,17 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    // quando estiver estavel e não utilizar mais modelos de desenvolvimento, remover o autodetect -> new MySqlServerVersion(new Version(8, 0, 42)) // Ajuste conforme a versão do MySQL
-    ));
+   options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+   ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+   // quando estiver estavel e não utilizar mais modelos de desenvolvimento, remover o autodetect -> new MySqlServerVersion(new Version(8, 0, 42)) // Ajuste conforme a versão do MySQL  
+   ));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "TesouroAzulAPI", Version = "v1" });
 
-    // Adiciona suporte ao JWT no Swagger
+    // Adiciona suporte ao JWT no Swagger  
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -43,42 +44,44 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
+   {
+       {
+           new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+           {
+               Reference = new Microsoft.OpenApi.Models.OpenApiReference
+               {
+                   Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                   Id = "Bearer"
+               }
+           },
+           Array.Empty<string>()
+       }
+   });
 });
 
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
-        };
-    });
+   .AddJwtBearer("Bearer", options =>
+   {
+       var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+       options.TokenValidationParameters = new TokenValidationParameters
+       {
+           ValidateIssuer = true,
+           ValidateAudience = true,
+           ValidateLifetime = true,
+           ValidateIssuerSigningKey = true,
+           ValidIssuer = builder.Configuration["Jwt:Issuer"],
+           ValidAudience = builder.Configuration["Jwt:Audience"],
+           IssuerSigningKey = new SymmetricSecurityKey(key)
+       };
+   });
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
-// Adiciona o middleware para reconhecer proxy reverso e HTTPS
+// Adiciona o middleware para reconhecer proxy reverso e HTTPS  
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -90,7 +93,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TesouroAzulAPI v1");
-    c.RoutePrefix = "swagger"; // ou "" se quiser na raiz
+    c.RoutePrefix = "swagger"; // ou "" se quiser na raiz  
 });
 
 app.UseHttpsRedirection();
@@ -100,5 +103,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Executa na porta local 5000, proxy (Apache/Nginx) fará o encaminhamento do IP público + HTTPS para aqui
+// Executa na porta local 5000, proxy (Apache/Nginx) fará o encaminhamento do IP público + HTTPS para aqui  
 app.Run();

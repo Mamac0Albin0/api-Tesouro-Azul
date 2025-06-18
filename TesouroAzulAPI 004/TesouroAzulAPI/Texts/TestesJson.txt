@@ -29,7 +29,6 @@ Modelo para o controller de Fornecedor
 Modelo para o controller de produto
 
 {
-  "iD_USUARIO": 1,
   "coD_PRODUTO": "123",
   "nomE_PRODUTO": "Carlos",
   "valoR_PRODUTO": 500,
@@ -38,7 +37,6 @@ Modelo para o controller de produto
 }
 
 {
-  "iD_USUARIO": 2,
   "coD_PRODUTO": "223",
   "nomE_PRODUTO": "Victor",
   "valoR_PRODUTO": 550.99,
