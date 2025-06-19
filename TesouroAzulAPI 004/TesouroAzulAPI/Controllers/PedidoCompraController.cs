@@ -74,11 +74,16 @@ namespace TesouroAzulAPI.Controllers
                 itensSalvo.Add(itemCompra);
             }
 
-            // Atualizando o valor do pedido com o total dos itens e salva
-            pedido.VALOR_PEDIDO = valorPedido;
+            // Verifica se o valor do pedido é zero, se for, não atualiza o valor do pedido
 
-            // verifica se o VALOR_PEDIDO é nulo ou zero
-            if (pedido.VALOR_PEDIDO == 0) _context.PedidosCompra.Update(pedido);
+            if (pedido.VALOR_PEDIDO == 0) 
+            {            
+            // Atualizando o valor do pedido com o total dos itens e salva
+                pedido.VALOR_PEDIDO = valorPedido;
+
+                // verifica se o VALOR_PEDIDO é nulo ou zero
+                _context.PedidosCompra.Update(pedido);
+            }
 
             
             await _context.SaveChangesAsync();
