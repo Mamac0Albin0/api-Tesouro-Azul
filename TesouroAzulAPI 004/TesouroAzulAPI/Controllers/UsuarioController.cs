@@ -237,7 +237,7 @@ namespace TesouroAzulAPI.Controllers
         }
 
             // Atualizar Imagem
-            [Authorize(Roles = "user,admin")]
+        [Authorize(Roles = "user,admin")]
         [HttpPatch("/alterar-imagem")]
         public async Task<IActionResult> AtualizarImagem([FromBody] ImagemDto dto)
         {

@@ -11,9 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Adiciona o serviço de CORS  
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("PermitirTesouroAzul", policy =>
     {
-        policy.WithOrigins("https://tesouroazul.com.br")
+        policy.WithOrigins("https://www.tesouroazul.com.br", "https://tesouroazul.com.br")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -87,7 +87,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseCors();
+app.UseCors("PermitirTesouroAzul");
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

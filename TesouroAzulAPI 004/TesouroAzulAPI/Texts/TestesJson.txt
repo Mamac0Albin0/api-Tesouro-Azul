@@ -5,13 +5,12 @@ Modelo para o controller de Usuario
 {
   "nomE_USUARIO": "Miguel Fonsêca Souza",
   "emaiL_USUARIO": "MeuEmail@gmail.com",
-  "datA_NASC_USUARIO": "2025-05-06T19:32:34.717Z",
+  "datA_NASC_USUARIO": "2025-03-29T19:32:34.717Z",
   "cpF_USUARIO": "00011122233",
   "cnpJ_USUARIO": "",
   "iD_ASSINATURA_FK": 2,
   "fotO_USUARIO": "",
   "senhA_USUARIO": "01234567",
-  "statuS_USUARIO": "a"
 }
 
 Modelo para o controller de Fornecedor
@@ -44,7 +43,35 @@ Modelo para o controller de produto
   "imG_PRODUTO": ""
 }
 
-Modelo para o controller de produto
+Modelo para endPoint de PedidoCompra
+
+{
+  "pedido": {
+    "valoR_VALOR": 0
+  },
+  "item": [
+    {
+      "iD_PRODUTO_FK": 1,
+      "iD_PEDIDO_FK": 0,
+      "vaL_ITEM_COMPRA": "2025-06-20T17:51:06.423Z",
+      "lotE_COMPRA": "0008",
+      "quantidadE_ITEM_COMPRA": 25,
+      "n_ITEM_COMPRA": 1,
+      "valoR_TOTAL_ITEM_COMPRA": 1550
+    },
+    {
+      "iD_PRODUTO_FK": 2,
+      "iD_PEDIDO_FK": 0,
+      "vaL_ITEM_COMPRA": "2025-06-20T17:51:06.423Z",
+      "lotE_COMPRA": "0005",
+      "quantidadE_ITEM_COMPRA": 25,
+      "n_ITEM_COMPRA": 1,
+      "valoR_TOTAL_ITEM_COMPRA": 1450
+    }
+  ]
+}
+
+Modelo para o controller de pedido Venda
 
 {
   "pedido": {
