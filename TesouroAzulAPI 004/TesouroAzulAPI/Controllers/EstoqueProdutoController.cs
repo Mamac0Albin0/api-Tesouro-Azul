@@ -146,6 +146,18 @@ namespace TesouroAzulAPI.Controllers
             return Ok(estoqueProduto);
         }
 
+        // Buscar estoque por ID_PRODUTO
+        [Authorize(Roles = "user")]
+        [HttpGet("buscar-estoque-por-produto-{id_produto}")]
+        public async Task<IActionResult> BuscarPorIdProduto(int id_produto)
+        {
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var estoqueProduto = await _context.EstoqueProdutos.FirstOrDefaultAsync(e => e.ID_PRODUTO_FK == id_produto && e.ID_USUARIO_FK == idUsuario);
+
+            if (estoqueProduto == null) return NotFound("Estoque não encontrado para o produto especificado.");
+            return Ok(estoqueProduto);
+        }
+
 
         // PATCHs
         // Alterar estoque
