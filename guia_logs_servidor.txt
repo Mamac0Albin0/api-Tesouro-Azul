@@ -1,0 +1,56 @@
+
+======================
+1. LOGS DO APACHE
+======================
+
+Ver últimos acessos:
+sudo tail -n 50 /var/log/apache2/access.log
+
+Ver erros recentes:
+sudo tail -n 50 /var/log/apache2/error.log
+
+Acompanhar acessos em tempo real:
+sudo tail -f /var/log/apache2/access.log
+
+Acompanhar erros em tempo real:
+sudo tail -f /var/log/apache2/error.log
+
+Alterar nível de log para debug:
+sudo nano /etc/apache2/apache2.conf
+# Adicione ou altere:
+LogLevel debug
+
+Reiniciar Apache:
+sudo systemctl restart apache2
+
+===============================
+2. LOGS DA API (.NET systemd)
+===============================
+
+Ver status do serviço:
+sudo systemctl status tesouroapi
+
+Ver logs em tempo real:
+sudo journalctl -u tesouroapi -f
+
+Últimos 100 registros:
+sudo journalctl -u tesouroapi -n 100
+
+Logs desde o boot:
+sudo journalctl -u tesouroapi -b
+
+Logs por data:
+sudo journalctl -u tesouroapi --since "2025-06-19" --until "2025-06-19 23:59"
+
+Salvar logs em arquivo:
+sudo journalctl -u tesouroapi > ~/log-tesouroapi.txt
+
+================================
+3. MONITORAMENTO DE PORTAS
+================================
+
+Ver se API escuta na porta 5000:
+sudo lsof -i :5000
+
+Ver serviços rodando via Apache:
+sudo netstat -tulpn | grep apache
