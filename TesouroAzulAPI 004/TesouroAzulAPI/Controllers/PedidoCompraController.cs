@@ -261,6 +261,23 @@ namespace TesouroAzulAPI.Controllers
             return Ok(itens);
         }
 
+        // Buscar todos os itens de compra por usuario
+        [Authorize(Roles = "user")]
+        [HttpGet("buscar-todos-itens-compra-por-usuario")]
+        public async Task<ActionResult<IEnumerable<ItensCompra>>> BuscarTodosItensCompraPorUsuario()
+        {
+            int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var itens = await _context.ItensCompra
+                .Include(i => i.PedidoCompra)
+                .Where(i => i.PedidoCompra.ID_USUARIO_FK == idUsuario)
+                .ToListAsync();
+
+            if (!itens.Any())
+                return NotFound("Nenhum item de compra encontrado para o usuário.");
+
+            return Ok(itens);
+        }
         //Buscar Compras Pedido por usuario
         [Authorize(Roles ="user,admin")]
         [HttpGet("buscar-pedidos-usuario")]
