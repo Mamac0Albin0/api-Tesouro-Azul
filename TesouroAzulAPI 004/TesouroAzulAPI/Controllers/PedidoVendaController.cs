@@ -276,7 +276,6 @@ namespace TesouroAzulAPI.Controllers
             int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var pedidosVenda = await _context.PedidosVenda
                 .Where(p => p.ID_USUARIO_FK == idUsuario)
-                .Include(p => p.Usuario)
                 .ToListAsync();
             return Ok(pedidosVenda);
         }
