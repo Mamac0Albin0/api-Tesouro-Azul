@@ -148,7 +148,7 @@ namespace TesouroAzulAPI.Controllers
 
         // Buscar estoque por ID_PRODUTO
         [Authorize(Roles = "user")]
-        [HttpGet("buscar-estoque-por-produto-{id_produto}")]
+        [HttpGet("buscar-estoque-por-produto/{id_produto}")]
         public async Task<IActionResult> BuscarPorIdProduto(int id_produto)
         {
             int idUsuario = Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
